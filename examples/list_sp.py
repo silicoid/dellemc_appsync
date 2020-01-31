@@ -36,7 +36,9 @@ if args.sp_id is None:
         ET.dump(splist_dom)
 
     for sp in splist_dom.findall(".//servicePlan"):
-        print("\"" + sp.find("name").text + "\" has ID:", sp.find("id").text)
+        print("\"" + sp.find("displayName").text + "\" (" +
+              sp.find("application").text +
+              ") has ID:", sp.find("id").text)
 else:
     response = appsync.get("/instances/servicePlan::" + args.sp_id)
     if response.status_code != 200:
