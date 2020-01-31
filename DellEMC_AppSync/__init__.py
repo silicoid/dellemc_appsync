@@ -8,12 +8,14 @@ class DellEMC_AppSync:
     is a wrapper to the Dell EMC AppSync REST API"""
 
     def __init__(self, username=None, password=None, host=None, port=None,
-                 ssl=True, verify=True, verbose=0):
+                 ssl=False, verify=True, verbose=0):
         """Username, password and host are the minimum requirements to Connect
         to AppSync. If ssl is set to anything else but 'y' then http is used.
         Default is y."""
 
-        if verbose >= 3:
+        self.verbose = verbose
+
+        if self.verbose >= 3:
             print("Parameters:", username, password, host, port, ssl)
 
         if port is None:
@@ -47,7 +49,7 @@ class DellEMC_AppSync:
         url = self.protocol + "://" + self.host + ":" + self.port + \
             "/appsync/rest/types/license/instances"
 
-        if verbose >= 1:
+        if self.verbose >= 3:
             print("Requesting: " + url)
 
         response = self.session.get(url, verify=self.verify)
@@ -61,7 +63,7 @@ class DellEMC_AppSync:
         self.lt = re.search("name=\"lt\" value=\"(.*)\"",
                             response.text, re.IGNORECASE).group(1)
 
-        if verbose >= 3:
+        if self.verbose >= 3:
             print("jsessionid:", self.jsessionid)
             print("LT:", self.lt)
 
@@ -71,7 +73,7 @@ class DellEMC_AppSync:
             "&password=" + urllib.parse.quote(self.password) + \
             "&lt=" + self.lt + \
             "&execution=e1s1&_eventId=submit"
-        if verbose >= 3:
+        if self.verbose >= 3:
             print("CAS:", url)
 
         response = self.session.get(url, verify=self.verify)
@@ -82,7 +84,14 @@ class DellEMC_AppSync:
                      re.IGNORECASE) is not None:
             raise Exception("Login not successful")
 
+    def get(self, uri):
+        url = self.protocol + "://" + self.host + ":" + self.port + \
+            "/appsync/rest/" + uri.strip("/")
+        if self.verbose >= 2:
+            print("Requesting:", url)
+        response = self.session.get(url, verify=self.verify)
+        return response
 
-def __del__(self):
-    url = self.cas_url + "logout"
-    self.session.get(url, verify=self.verify)
+    def __del__(self):
+        url = self.cas_url + "logout"
+        self.session.get(url, verify=self.verify)
